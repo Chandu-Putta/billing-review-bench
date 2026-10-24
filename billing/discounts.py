@@ -15,3 +15,12 @@ def apply_discounts(base_fee: Decimal, discounts) -> Decimal:
     return (base_fee * (Decimal("1") - total_rate)).quantize(
         Decimal("0.01"), rounding=ROUND_HALF_UP
     )
+
+
+def apply_discounts_with_loyalty(
+    base_fee: Decimal, discounts, loyalty_rate: Decimal
+) -> Decimal:
+    discounted = apply_discounts(base_fee, discounts)
+    return (discounted * (Decimal("1") - loyalty_rate)).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
+    )
