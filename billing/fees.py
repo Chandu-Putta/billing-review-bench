@@ -9,6 +9,9 @@ class FeeCalculator:
     def calc_participant_fee(self, part_id: str, daily_fee: Decimal) -> Decimal:
         enrollment_days = self._enrollment_service.get_enrollment_days(part_id)
 
+        if enrollment_days < 0:
+            raise ValueError(f"Invalid enrollment days: {enrollment_days}")
+
         return daily_fee * enrollment_days
 
     def prorate(self, monthly_fee: Decimal, period, year: int, month: int) -> Decimal:
