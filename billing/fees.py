@@ -1,5 +1,6 @@
-import calendar
 from decimal import Decimal, ROUND_HALF_UP
+
+BILLING_MONTH_DAYS = 30
 
 
 class FeeCalculator:
@@ -12,6 +13,5 @@ class FeeCalculator:
         return daily_fee * enrollment_days
 
     def prorate(self, monthly_fee: Decimal, period, year: int, month: int) -> Decimal:
-        days_in_month = calendar.monthrange(year, month)[1]
-        share = Decimal(period.length_days()) / Decimal(days_in_month)
+        share = Decimal(period.length_days()) / Decimal(BILLING_MONTH_DAYS)
         return (monthly_fee * share).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
