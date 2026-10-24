@@ -12,7 +12,7 @@ class EnrollmentPeriod:
             raise ValueError("end before start")
 
     def length_days(self) -> int:
-        return (self.end - self.start).days + 1
+        return (self.end - self.start).days
 
 
 class EnrollmentService:
