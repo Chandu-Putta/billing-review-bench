@@ -23,6 +23,4 @@ class EnrollmentService:
         periods = self._repository.periods_for(part_id)
         if not periods:
             return -1
-        first = min(p.start for p in periods)
-        last = max(p.end for p in periods)
-        return (last - first).days + 1
+        return sum(p.length_days() for p in periods)
