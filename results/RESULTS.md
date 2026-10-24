@@ -25,7 +25,7 @@ Scoring rule: Caught = a comment that names the actual seeded defect. Missed = a
 - Without context, Copilot also accepted a PR description's claim as the policy (PR 3).
 
 ## Limitations (state these in the article)
-- Synthetic code, 7 seeded defects plus 1 control, one tool, one date, a Pro-plan configuration, no blind scoring.
+- Synthetic code, 7 seeded defects plus 1 control, one tool, a two-day window (October 23 and 24, 2026), a Pro-plan configuration, no blind scoring.
 - The author wrote both the defects and the rules, so B has an advantage by construction (it was told the rules). The measured effect is "what context does when the right rule is supplied," not how well teams will write rules.
 - Repeats are not independent samples: a re-requested Copilot review on the same PR reuses its earlier comment threads.
 - Review output is not deterministic and this is a handful of cases. Report counts, not rates, and no significance claims.
@@ -46,12 +46,12 @@ Raw reviews: `pr1-A-r2.md` ... `prp2-B.md`. PR map: `round2_prs.txt`. Same condi
 | r3 (#19/#20) | Missed: "Approval recommended, no open issues" | Missed: "Needs a closer look", test request |
 | r4 (#21/#22) | Missed: "Approval recommended", non-blocking test request | Missed: "Needs a closer look", test request |
 
-**PR 1 (defect in unchanged code, the guard's callee): 0 of 4 caught in A, 0 of 4 caught in B.** Every B review asked for a test of the new guard; none asked for the split-enrollment test the instruction file requires, and none looked at `get_enrollment_days`.
+**PR 1 (defect in unchanged code, the guard's callee): 0 of 4 caught in A, 0 of 4 caught in B.** Every B review asked for a test of the new guard; none asked for the split-enrollment test the instruction file requires, and none questioned what `get_enrollment_days` returns.
 
 ## PR 1b: the same span-vs-sum logic, introduced inside the diff (#23/#24)
 Base branch has the correct `sum(p.length_days())`; the PR replaces it with first-start-to-last-end.
 - A: **Caught.** "This counts unenrolled gaps between separate periods: January 1-10 and January 21-30 total 20 enrollment days, but this returns 30."
-- B: **Caught**, with the numbers from the instruction file's example (31 instead of 20; $62 instead of $40) and a request for the split-enrollment test.
+- B: **Caught**, built on the instruction file's example (15 days enrolled, 11 not, 5 enrolled); the 31, 20, $62 and $40 are Copilot's own arithmetic and a request for the split-enrollment test.
 
 ## Pipeline cases (pandas, separate base branches with a pipeline instruction file in B) (#25-#28)
 | Case | A | B |
@@ -64,6 +64,12 @@ No clean control for the pipeline cases, so false positives are not measured the
 - Defects inside the diff (billing PRs 2-7, PR 1b, pipeline P2: 8 cases): A caught 5 of 8, B caught 8 of 8.
 - Defects in unchanged code that the diff relies on (billing PR 1, pipeline P1: 2 cases; PR 1 reviewed 4 times per condition, P1 once): A caught 0, B caught 0 (0 of 5 reviews each).
 - The same span-vs-sum logic was missed 8 of 8 times when it sat in unchanged code and caught 2 of 2 times when the diff changed it (A caught it too, because the deleted correct line is visible in the diff).
-- Instruction files helped only on in-diff defects whose rule is not inferable from the code (PR 3, 4, 6). They never made the reviewer open unchanged code.
+- Instruction files helped only on in-diff defects whose rule is not inferable from the code (PR 3, 4, 6). They never led the reviewer to question unchanged code.
 
 Caveats added in round 2: PR 1 repeats are independent PRs, but the change is identical; Copilot's summary label varies run to run ("Approval recommended" appeared even when a test request was open); credits used were not tracked per review; pipeline cases are two, without a control.
+
+## Notes added after the round-2 review
+- The split-enrollment test request in condition B appeared on PRs 2, 3, 4, 7 and 1b (all in scope of the enrollment rule file, each review had also found a defect) and on none of the four PR 1 reviews. PR 8 (clean control) is also in scope and did not draw the request. So the request may follow a finding, not prompt one.
+- There is no evidence the path-scoped file was loaded on PR 1: the four PR 1 condition-B reviews echo only the repository-wide line about passing tests.
+- The repository README says the project was invented to test AI code review; Copilot can read it in both conditions (possible priming).
+- Scoring is a single reader's judgement, not blind. Anyone can rescore from the raw reviews in this folder.
