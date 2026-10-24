@@ -26,4 +26,5 @@ def build_features(
     features["tenure_days"] = tenure_days(periods)
     features["activity_90d"] = activity_count(events, snapshot_date)
     features = features.fillna({"tenure_days": -1, "activity_90d": 0})
-    return features.astype({"tenure_days": "int64", "activity_90d": "int64"})
+    features = features.astype({"tenure_days": "int64", "activity_90d": "int64"})
+    return features[features["tenure_days"] >= 0]
