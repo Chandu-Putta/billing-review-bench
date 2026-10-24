@@ -1,5 +1,7 @@
 import pandas as pd
 
+LATE_ARRIVAL_DAYS = 7
+
 
 def tenure_days(periods: pd.DataFrame) -> pd.Series:
     """Tenure per customer from subscription periods (customer_id, start, end)."""
@@ -24,6 +26,7 @@ def build_features(
 ) -> pd.DataFrame:
     features = customers.set_index("customer_id")[[]].copy()
     features["tenure_days"] = tenure_days(periods)
-    features["activity_90d"] = activity_count(events, snapshot_date)
+    as_of = snapshot_date + pd.Timedelta(days=LATE_ARRIVAL_DAYS)
+    features["activity_90d"] = activity_count(events, as_of)
     features = features.fillna({"tenure_days": -1, "activity_90d": 0})
     return features.astype({"tenure_days": "int64", "activity_90d": "int64"})
